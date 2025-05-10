@@ -14,6 +14,7 @@
     "symfony/http-kernel": "^6.4",
     "symfony/security-bundle": "^6.4",
     "symfony/security-http": "^6.4",
+    "symfony/serializer": "^6.4",
     "tourze/json-rpc-core": "^0.0.6",
     "tourze/json-rpc-lock-bundle": "0.1.*",
     "tourze/json-rpc-log-bundle": "0.1.*",
