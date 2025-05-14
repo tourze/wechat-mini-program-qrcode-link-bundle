@@ -3,15 +3,16 @@
 namespace WechatMiniProgramQrcodeLinkBundle\Procedure;
 
 use Doctrine\ORM\EntityManagerInterface;
-use FileSystemBundle\Service\MountManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\PngEncoder;
 use Intervention\Image\Geometry\Factories\CircleFactory;
 use Intervention\Image\ImageManager;
+use League\Flysystem\FilesystemOperator;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Tourze\FileNameGenerator\RandomNameGenerator;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
 use Tourze\JsonRPC\Core\Attribute\MethodParam;
@@ -56,7 +57,8 @@ class GetUserShareCode extends LockableProcedure
         private readonly RequestStack $requestStack,
         private readonly AccountService $accountService,
         private readonly Client $client,
-        private readonly MountManager $mountManager,
+        private readonly RandomNameGenerator $randomNameGenerator,
+        private readonly FilesystemOperator $filesystem,
         private readonly Security $security,
         private readonly EntityManagerInterface $entityManager,
     ) {
@@ -135,8 +137,10 @@ class GetUserShareCode extends LockableProcedure
             $png = $img->toPng();
         }
 
-        $key = $this->mountManager->saveContent($png, 'png', 'wechat-mp-share-code');
-        $code->setImageUrl($this->mountManager->getAccessUrl($key));
+        $key = $this->randomNameGenerator->generateDateFileName('png', 'wechat-mp-share-code');
+        $this->filesystem->write($key, $png);
+
+        $code->setImageUrl($this->filesystem->publicUrl($key));
         $this->entityManager->persist($code);
         $this->entityManager->flush();
 

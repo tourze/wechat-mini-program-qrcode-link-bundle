@@ -8,3 +8,5 @@ services:
     resource: '../../Command/'
   WechatMiniProgramQrcodeLinkBundle\Procedure\:
     resource: '../../Procedure/'
+
+  Tourze\FileNameGenerator\RandomNameGenerator: ~

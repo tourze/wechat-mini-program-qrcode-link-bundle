@@ -7,6 +7,7 @@
     "php": "^8.1",
     "doctrine/orm": "^3.0",
     "intervention/image": "^3.11",
+    "league/flysystem": "^3.10",
     "spatie/color": "^1.8",
     "symfony/config": "^6.4",
     "symfony/console": "^6.4",
@@ -16,6 +17,7 @@
     "symfony/security-bundle": "^6.4",
     "symfony/security-http": "^6.4",
     "symfony/serializer": "^6.4",
+    "tourze/file-name-generator": "0.0.*",
     "tourze/json-rpc-core": "^0.0.6",
     "tourze/json-rpc-lock-bundle": "0.1.*",
     "tourze/wechat-mini-program-bundle": "0.1.*"
