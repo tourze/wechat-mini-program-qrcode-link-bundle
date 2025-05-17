@@ -15,6 +15,7 @@
     "symfony/http-foundation": "^6.4",
     "symfony/http-kernel": "^6.4",
     "symfony/security-bundle": "^6.4",
+    "symfony/security-core": "^6.4",
     "symfony/security-http": "^6.4",
     "symfony/serializer": "^6.4",
     "tourze/file-name-generator": "0.0.*",
