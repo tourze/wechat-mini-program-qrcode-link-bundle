@@ -11,10 +11,12 @@ use WechatMiniProgramBundle\Repository\AccountRepository;
 use WechatMiniProgramBundle\Service\Client;
 use WechatMiniProgramQrcodeLinkBundle\Request\CodeUnLimitRequest;
 
-#[AsCommand(name: 'wechat-mini-program:generate-unlimited-code', description: '生成指定路径和场景值的码')]
+#[AsCommand(name: self::NAME, description: '生成指定路径和场景值的码')]
 class GenerateUnlimitedCodeCommand extends Command
 {
-    public function __construct(
+    
+    public const NAME = 'wechat-mini-program:generate-unlimited-code';
+public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly Client $client,
     ) {
@@ -36,7 +38,7 @@ class GenerateUnlimitedCodeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $account = $this->accountRepository->find($input->getArgument('accountId'));
-        if (!$account) {
+        if ($account === null) {
             throw new \Exception('找不到小程序');
         }
 
@@ -52,7 +54,7 @@ class GenerateUnlimitedCodeCommand extends Command
         $request->setWidth($input->getArgument('width'));
         $png = $this->client->request($request);
 
-        if ($input->getArgument('output')) {
+        if ($input->getArgument('output') !== null) {
             file_put_contents($input->getArgument('output'), $png);
             $output->writeln('成功写入文件');
         }

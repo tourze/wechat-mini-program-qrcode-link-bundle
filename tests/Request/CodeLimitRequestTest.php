@@ -29,7 +29,6 @@ class CodeLimitRequestTest extends TestCase
         $this->request->setCheckPath(true);
 
         $options = $this->request->getRequestOptions();
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
         $this->assertArrayHasKey('scene', $options['json']);
         $this->assertEquals('test-scene', $options['json']['scene']);
@@ -46,8 +45,6 @@ class CodeLimitRequestTest extends TestCase
         $this->request->setAutoColor(true);
 
         $options = $this->request->getRequestOptions();
-        
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
         $this->assertArrayHasKey('scene', $options['json']);
         $this->assertArrayHasKey('page', $options['json']);

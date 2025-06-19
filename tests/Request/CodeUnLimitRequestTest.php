@@ -31,7 +31,6 @@ class CodeUnLimitRequestTest extends TestCase
         $this->request->setCheckPath(true);
 
         $options = $this->request->getRequestOptions();
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
         $this->assertArrayHasKey('scene', $options['json']);
         $this->assertEquals('test-scene', $options['json']['scene']);
@@ -51,8 +50,6 @@ class CodeUnLimitRequestTest extends TestCase
         $this->request->setLineColor(['r' => 255, 'g' => 0, 'b' => 0]);
 
         $options = $this->request->getRequestOptions();
-        
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
         $this->assertArrayHasKey('scene', $options['json']);
         $this->assertArrayHasKey('is_hyaline', $options['json']);

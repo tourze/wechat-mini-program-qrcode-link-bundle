@@ -168,13 +168,13 @@ class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
     {
         $color = null;
         $lineColor = $this->getLineColor();
-        if (is_string($lineColor)) {
+        if ((bool) is_string($lineColor)) {
             $color = Rgb::fromString($lineColor);
         }
-        if (is_array($lineColor)) {
+        if ((bool) is_array($lineColor)) {
             $color = new Rgb($lineColor['r'], $lineColor['g'], $lineColor['b']);
         }
-        if (empty($color)) {
+        if ((bool) empty($color)) {
             throw new \InvalidArgumentException('找不到合适的颜色');
         }
 
