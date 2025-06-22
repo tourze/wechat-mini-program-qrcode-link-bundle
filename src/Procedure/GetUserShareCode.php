@@ -67,7 +67,7 @@ class GetUserShareCode extends LockableProcedure
     public function execute(): array
     {
         $account = $this->accountService->detectAccountFromRequest($this->requestStack->getMainRequest(), $this->appId);
-        if (!$account) {
+        if (null === $account) {
             throw new ApiException('找不到小程序');
         }
 
@@ -75,7 +75,7 @@ class GetUserShareCode extends LockableProcedure
         $code->setAccount($account);
 
         $linkUrl = $this->link;
-        if (!$linkUrl) {
+        if (null === $linkUrl || '' === $linkUrl) {
             $linkUrl = $_ENV['WECHAT_MINI_PROGRAM_INDEX_PAGE'] ?? '/pages/index/index';
         }
 
@@ -97,7 +97,7 @@ class GetUserShareCode extends LockableProcedure
         $request->setScene(strval($code->getId()));
         $request->setPage($basePath);
         $request->setCheckPath(false);
-        $request->setEnvVersion($code->getEnvVersion() ? $code->getEnvVersion()->value : 'release');
+        $request->setEnvVersion(null !== $code->getEnvVersion() ? $code->getEnvVersion()->value : 'release');
         $request->setWidth($code->getSize());
         $request->setHyaline($this->hyaline);
 
@@ -108,7 +108,7 @@ class GetUserShareCode extends LockableProcedure
 
         $png = $this->client->request($request);
 
-        if ($this->logoUrl) {
+        if (null !== $this->logoUrl && '' !== $this->logoUrl) {
             // 参考 https://www.imnobby.com/2022/06/02/php-crop-image-from-square-to-circle-aka-set-image-border-radius/
 
             $manager = new ImageManager(new Driver());
@@ -118,20 +118,25 @@ class GetUserShareCode extends LockableProcedure
             if (str_starts_with($this->logoUrl, 'https://')) {
                 $avatar = $manager->read($this->logoUrl);
             } elseif ('user-avatar' === $this->logoUrl) {
-                $avatar = $manager->read($this->security->getUser()->getAvatar());
+                $user = $this->security->getUser();
+                if (!method_exists($user, 'getAvatar')) {
+                    throw new ApiException('用户对象不支持获取头像');
+                }
+                $avatar = $manager->read($user->getAvatar());
             } else {
                 throw new ApiException('logoUrl不合法');
             }
-            $avatar->resize($innerWidth, $innerWidth);
+            $avatar->resize((int) $innerWidth, (int) $innerWidth);
             // create empty canvas with transparent background
-            $canvas = $manager->create($innerWidth, $innerWidth);
+            $canvas = $manager->create((int) $innerWidth, (int) $innerWidth);
             // draw a black circle on it
             $circleWidth = ceil($innerWidth / 2);
-            $canvas->drawCircle($circleWidth, $circleWidth, function (CircleFactory $circle) use ($innerWidth) {
-                $circle->radius($innerWidth); // radius of circle in pixels
+            $canvas->drawCircle((int) $circleWidth, (int) $circleWidth, function (CircleFactory $circle) use ($innerWidth) {
+                $circle->radius((int) $innerWidth); // radius of circle in pixels
                 $circle->background('#000000'); // background color
             });
-            $avatar->save($canvas->encode(new PngEncoder(), 75), true); // 75 is the image compression ratio
+            $encodedCanvas = $canvas->encode(new PngEncoder());
+            $avatar->save($encodedCanvas, true); // save without quality parameter
 
             $img->place($avatar, 'center');
             $png = $img->toPng();

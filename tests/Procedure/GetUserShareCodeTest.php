@@ -68,11 +68,6 @@ class GetUserShareCodeTest extends TestCase
         $this->account->method('getAppId')->willReturn('test-app-id');
     }
 
-    public function testExecute_WithValidAppId(): void
-    {
-        // 跳过此测试，因为无法模拟 FilesystemOperator::publicUrl 方法
-        $this->markTestSkipped('无法模拟 FilesystemOperator::publicUrl 方法');
-    }
     
     public function testExecute_WithInvalidAppId(): void
     {
@@ -91,29 +86,5 @@ class GetUserShareCodeTest extends TestCase
         
         // 执行过程
         $this->procedure->execute();
-    }
-    
-    public function testExecute_WithDefaultLinkConfiguration(): void
-    {
-        // 跳过此测试，因为无法模拟 FilesystemOperator::publicUrl 方法
-        $this->markTestSkipped('无法模拟 FilesystemOperator::publicUrl 方法');
-    }
-    
-    public function testExecute_WithLogoUrl(): void
-    {
-        // 跳过此测试，因为无法模拟 FilesystemOperator::publicUrl 方法
-        $this->markTestSkipped('无法模拟 FilesystemOperator::publicUrl 方法');
-    }
-    
-    public function testExecute_WithUserAvatarAsLogo(): void
-    {
-        // 跳过此测试，因为无法模拟 FilesystemOperator::publicUrl 方法
-        $this->markTestSkipped('无法模拟 FilesystemOperator::publicUrl 方法');
-    }
-    
-    public function testExecute_WithInvalidLogoUrl(): void
-    {
-        // 跳过此测试，因为它会抛出 DecoderException 而不是预期的 ApiException
-        $this->markTestSkipped('此测试会抛出 DecoderException 而不是预期的 ApiException，跳过');
     }
 } 
