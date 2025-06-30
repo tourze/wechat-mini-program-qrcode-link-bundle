@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WechatMiniProgramBundle\Repository\AccountRepository;
 use WechatMiniProgramBundle\Service\Client;
+use WechatMiniProgramQrcodeLinkBundle\Exception\AccountNotFoundException;
 use WechatMiniProgramQrcodeLinkBundle\Request\CodeUnLimitRequest;
 
 #[AsCommand(name: self::NAME, description: '生成指定路径和场景值的码')]
@@ -39,7 +40,7 @@ public function __construct(
     {
         $account = $this->accountRepository->find($input->getArgument('accountId'));
         if ($account === null) {
-            throw new \Exception('找不到小程序');
+            throw new AccountNotFoundException('找不到小程序');
         }
 
         $basePath = ltrim((string) $input->getArgument('path'), '/'); // 兼容写错的情况

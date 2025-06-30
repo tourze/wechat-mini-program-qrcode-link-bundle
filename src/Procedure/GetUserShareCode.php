@@ -25,31 +25,31 @@ use WechatMiniProgramBundle\Service\Client;
 use WechatMiniProgramQrcodeLinkBundle\Request\CodeUnLimitRequest;
 use WechatMiniProgramShareBundle\Entity\ShareCode;
 
-#[MethodTag('微信小程序')]
-#[MethodDoc('前端获取分享码')]
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
-#[MethodExpose('GetUserShareCode')]
+#[MethodTag(name: '微信小程序')]
+#[MethodDoc(summary: '前端获取分享码')]
+#[IsGranted(attribute: 'IS_AUTHENTICATED_FULLY')]
+#[MethodExpose(method: 'GetUserShareCode')]
 class GetUserShareCode extends LockableProcedure
 {
-    #[MethodParam('AppID')]
+    #[MethodParam(description: 'AppID')]
     public string $appId = '';
 
-    #[MethodParam('跳转路径，不传就进入首页')]
+    #[MethodParam(description: '跳转路径，不传就进入首页')]
     public ?string $link = null;
 
-    #[MethodParam('尺寸 默认200')]
+    #[MethodParam(description: '尺寸 默认200')]
     public int $size = 200;
 
-    #[MethodParam('打开版本')]
+    #[MethodParam(description: '打开版本')]
     public string $envVersion = 'release';
 
-    #[MethodParam('是否需要透明底色，为 true 时，生成透明底色的小程序码')]
+    #[MethodParam(description: '是否需要透明底色，为 true 时，生成透明底色的小程序码')]
     public bool $hyaline = false;
 
-    #[MethodParam('默认是{"r":0,"g":0,"b":0} 。auto_color 为 false 时生效，使用 rgb 设置颜色 例如 {"r":"xxx","g":"xxx","b":"xxx"} 十进制表示')]
+    #[MethodParam(description: '默认是{"r":0,"g":0,"b":0} 。auto_color 为 false 时生效，使用 rgb 设置颜色 例如 {"r":"xxx","g":"xxx","b":"xxx"} 十进制表示')]
     public array|string|null $lineColor = null;
 
-    #[MethodParam('覆盖中心的LOGO地址')]
+    #[MethodParam(description: '覆盖中心的LOGO地址')]
     public ?string $logoUrl = null;
 
     public function __construct(

@@ -5,6 +5,7 @@ namespace WechatMiniProgramQrcodeLinkBundle\Request;
 use Spatie\Color\Rgb;
 use WechatMiniProgramBundle\Request\RawResponseAPI;
 use WechatMiniProgramBundle\Request\WithAccountRequest;
+use WechatMiniProgramQrcodeLinkBundle\Exception\InvalidColorException;
 
 /**
  * @see https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/getUnlimitedQRCode.html
@@ -173,7 +174,7 @@ class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
             $color = new Rgb($lineColor['r'], $lineColor['g'], $lineColor['b']);
         }
         if (empty($color)) {
-            throw new \InvalidArgumentException('找不到合适的颜色');
+            throw new InvalidColorException('找不到合适的颜色');
         }
 
         return $color;
