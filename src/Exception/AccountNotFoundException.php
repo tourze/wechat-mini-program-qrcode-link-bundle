@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatMiniProgramQrcodeLinkBundle\Exception;
 
-use RuntimeException;
-
-class AccountNotFoundException extends RuntimeException
+class AccountNotFoundException extends \RuntimeException
 {
 }

@@ -1,12 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatMiniProgramQrcodeLinkBundle\Request;
 
 use WechatMiniProgramBundle\Request\RawResponseAPI;
 use WechatMiniProgramBundle\Request\WithAccountRequest;
 
 /**
- * TODO 未对齐接口
+ * 获取小程序码
+ * 该接口用于获取小程序码，适用于需要的码数量较少的业务场景。通过该接口生成的小程序码，永久有效，有数量限制。
+ *
+ * @see https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/getQRCode.html
  */
 class CodeLimitRequest extends WithAccountRequest implements RawResponseAPI
 {
@@ -23,7 +28,7 @@ class CodeLimitRequest extends WithAccountRequest implements RawResponseAPI
     /**
      * 默认是true，检查page 是否存在，为 true 时 page 必须是已经发布的小程序存在的页面（否则报错）；为 false 时允许小程序未发布或者 page 不存在， 但page 有数量上限（60000个）请勿滥用。
      */
-    private bool $checkPath;
+    private bool $checkPath = true;
 
     /**
      * 要打开的小程序版本。正式版为 "release"，体验版为 "trial"，开发版为 "develop"。默认是正式版
@@ -58,6 +63,7 @@ class CodeLimitRequest extends WithAccountRequest implements RawResponseAPI
         }
 
         $payload['check_path'] = $this->isCheckPath();
+        $payload['auto_color'] = $this->isAutoColor();
         if ($this->getWidth() > 0) {
             $payload['width'] = $this->getWidth();
         }

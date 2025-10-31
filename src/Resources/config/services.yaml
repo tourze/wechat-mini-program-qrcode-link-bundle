@@ -9,4 +9,30 @@ services:
   WechatMiniProgramQrcodeLinkBundle\Procedure\:
     resource: '../../Procedure/'
 
+  WechatMiniProgramQrcodeLinkBundle\Command\GenerateUnlimitedCodeCommand:
+    arguments:
+      $accountRepository: '@WechatMiniProgramBundle\Repository\AccountRepository'
+      $client: '@WechatMiniProgramBundle\Service\Client'
+
+  WechatMiniProgramQrcodeLinkBundle\Procedure\GetUserShareCode:
+    arguments:
+      $normalizer: '@Symfony\Component\Serializer\Normalizer\NormalizerInterface'
+      $requestStack: '@Symfony\Component\HttpFoundation\RequestStack'
+      $accountService: '@WechatMiniProgramBundle\Service\AccountService'
+      $client: '@WechatMiniProgramBundle\Service\Client'
+      $randomNameGenerator: '@Tourze\FileNameGenerator\RandomNameGenerator'
+      $filesystem: '@WechatMiniProgramQrcodeLinkBundle\FilesystemOperator'
+      $security: '@Symfony\Bundle\SecurityBundle\Security'
+      $entityManager: '@Doctrine\ORM\EntityManagerInterface'
+
+  WechatMiniProgramQrcodeLinkBundle\FilesystemOperator:
+    class: League\Flysystem\Filesystem
+    arguments:
+      - '@WechatMiniProgramQrcodeLinkBundle\FilesystemAdapter'
+
+  WechatMiniProgramQrcodeLinkBundle\FilesystemAdapter:
+    class: League\Flysystem\Local\LocalFilesystemAdapter
+    arguments:
+      - '%kernel.cache_dir%/flysystem'
+
   Tourze\FileNameGenerator\RandomNameGenerator: ~

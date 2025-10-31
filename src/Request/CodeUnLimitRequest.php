@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatMiniProgramQrcodeLinkBundle\Request;
 
 use Spatie\Color\Rgb;
@@ -8,6 +10,9 @@ use WechatMiniProgramBundle\Request\WithAccountRequest;
 use WechatMiniProgramQrcodeLinkBundle\Exception\InvalidColorException;
 
 /**
+ * 获取不限制的小程序码
+ * 该接口用于获取小程序码，适用于需要的码数量极多的业务场景。通过该接口生成的小程序码，永久有效，数量暂无限制。
+ *
  * @see https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/qr-code/getUnlimitedQRCode.html
  */
 class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
@@ -25,7 +30,7 @@ class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
     /**
      * 默认是true，检查page 是否存在，为 true 时 page 必须是已经发布的小程序存在的页面（否则报错）；为 false 时允许小程序未发布或者 page 不存在， 但page 有数量上限（60000个）请勿滥用。
      */
-    private bool $checkPath;
+    private bool $checkPath = true;
 
     /**
      * 要打开的小程序版本。正式版为 "release"，体验版为 "trial"，开发版为 "develop"。默认是正式版
@@ -44,6 +49,9 @@ class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
 
     private bool $hyaline = false;
 
+    /**
+     * @var array<string, int>|string|null
+     */
     private array|string|null $lineColor = ['r' => 0, 'g' => 0, 'b' => 0];
 
     public function getRequestPath(): string
@@ -153,11 +161,17 @@ class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
         $this->hyaline = $hyaline;
     }
 
+    /**
+     * @return array<string, int>|string|null
+     */
     public function getLineColor(): array|string|null
     {
         return $this->lineColor;
     }
 
+    /**
+     * @param array<string, int>|string|null $lineColor
+     */
     public function setLineColor(array|string|null $lineColor): void
     {
         $this->lineColor = $lineColor;
@@ -165,18 +179,21 @@ class CodeUnLimitRequest extends WithAccountRequest implements RawResponseAPI
 
     public function getLineColorRgb(): Rgb
     {
-        $color = null;
         $lineColor = $this->getLineColor();
+
         if (is_string($lineColor)) {
-            $color = Rgb::fromString($lineColor);
-        }
-        if (is_array($lineColor)) {
-            $color = new Rgb($lineColor['r'], $lineColor['g'], $lineColor['b']);
-        }
-        if (empty($color)) {
-            throw new InvalidColorException('找不到合适的颜色');
+            $rgb = Rgb::fromString($lineColor);
+            if (!$rgb instanceof Rgb) {
+                throw new InvalidColorException('Failed to create RGB from string');
+            }
+
+            return $rgb;
         }
 
-        return $color;
+        if (is_array($lineColor) && isset($lineColor['r'], $lineColor['g'], $lineColor['b'])) {
+            return new Rgb($lineColor['r'], $lineColor['g'], $lineColor['b']);
+        }
+
+        throw new InvalidColorException('找不到合适的颜色');
     }
 }
