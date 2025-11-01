@@ -26,7 +26,7 @@
     "tourze/file-name-generator": "0.0.*",
     "tourze/json-rpc-core": "1.0.*",
     "tourze/json-rpc-endpoint-bundle": "0.1.*",
-    "tourze/json-rpc-lock-bundle": "0.1.*",
+    "tourze/json-rpc-lock-bundle": "1.0.*",
     "tourze/symfony-dependency-service-loader": "1.*",
     "tourze/wechat-mini-program-bundle": "0.1.*",
     "tourze/wechat-mini-program-share-bundle": "0.0.*"
