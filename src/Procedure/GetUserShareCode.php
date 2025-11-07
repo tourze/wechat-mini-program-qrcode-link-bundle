@@ -14,7 +14,6 @@ use League\Flysystem\FilesystemOperator;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tourze\FileNameGenerator\RandomNameGenerator;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
@@ -60,7 +59,6 @@ class GetUserShareCode extends LockableProcedure
     public ?string $logoUrl = null;
 
     public function __construct(
-        private readonly NormalizerInterface $normalizer,
         private readonly RequestStack $requestStack,
         private readonly AccountService $accountService,
         private readonly Client $client,
@@ -89,13 +87,7 @@ class GetUserShareCode extends LockableProcedure
 
         $this->saveImageAndUpdateCode($code, $png);
 
-        $normalized = $this->normalizer->normalize($code, 'array', ['groups' => 'restful_read']);
-        if (!is_array($normalized)) {
-            throw new ApiException('Normalization failed to return array');
-        }
-
-        /** @var array<string, mixed> $normalized */
-        return $normalized;
+        return $this->formatShareCodeResponse($code);
     }
 
     private function detectAccount(): Account
@@ -218,5 +210,18 @@ class GetUserShareCode extends LockableProcedure
         $code->setImageUrl($this->filesystem->publicUrl($key));
         $this->entityManager->persist($code);
         $this->entityManager->flush();
+    }
+
+    /**
+     * 格式化 ShareCode 为 API 响应数组
+     * 字段清单对应 restful_read 序列化组
+     *
+     * @return array<string, mixed>
+     */
+    private function formatShareCodeResponse(ShareCode $code): array
+    {
+        return [
+            'imageUrl' => $code->getImageUrl(),
+        ];
     }
 }

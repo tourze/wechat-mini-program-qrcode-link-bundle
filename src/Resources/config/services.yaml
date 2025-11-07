@@ -16,7 +16,6 @@ services:
 
   WechatMiniProgramQrcodeLinkBundle\Procedure\GetUserShareCode:
     arguments:
-      $normalizer: '@Symfony\Component\Serializer\Normalizer\NormalizerInterface'
       $requestStack: '@Symfony\Component\HttpFoundation\RequestStack'
       $accountService: '@WechatMiniProgramBundle\Service\AccountService'
       $client: '@WechatMiniProgramBundle\Service\Client'

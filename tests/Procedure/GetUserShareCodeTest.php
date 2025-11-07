@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tourze\FileNameGenerator\RandomNameGenerator;
 use Tourze\JsonRPC\Core\Exception\ApiException;
 use WechatMiniProgramBundle\Service\AccountService;
@@ -40,7 +39,6 @@ final class GetUserShareCodeTest extends TestCase
 
         // 为其他依赖创建简单的Mock
         $this->procedure = new GetUserShareCode(
-            $this->createMock(NormalizerInterface::class),
             $requestStack,
             $this->accountService,
             $this->createMock(Client::class),
