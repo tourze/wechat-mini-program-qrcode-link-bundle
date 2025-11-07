@@ -71,9 +71,6 @@ class GetUserShareCode extends LockableProcedure
     ) {
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function execute(): array
     {
         $account = $this->detectAccount();
