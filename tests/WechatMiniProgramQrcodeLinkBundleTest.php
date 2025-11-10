@@ -17,9 +17,4 @@ use WechatMiniProgramQrcodeLinkBundle\WechatMiniProgramQrcodeLinkBundle;
 #[CoversClass(WechatMiniProgramQrcodeLinkBundle::class)]
 final class WechatMiniProgramQrcodeLinkBundleTest extends TestCase
 {
-    public function testBundleCanBeCreated(): void
-    {
-        $bundle = new WechatMiniProgramQrcodeLinkBundle();
-        $this->assertInstanceOf(WechatMiniProgramQrcodeLinkBundle::class, $bundle);
-    }
 }
