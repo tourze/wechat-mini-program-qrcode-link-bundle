@@ -179,6 +179,25 @@ $procedure->logoUrl = 'https://example.com/logo.png';
 $procedure->logoUrl = 'user-avatar';
 ```
 
+#### 小程序头像域名白名单
+
+> ⚠️ 在小程序侧获取头像（例如先用 `wx.downloadFile` 拉取用户头像再上传到服务端）时，所有请求的域名都必须提前加入「downloadFile 合法域名」。缺少 `https://thirdwx.qlogo.cn/...` 之类的条目，就是头像偶尔下载失败的根本原因。
+
+1. 进入 **微信公众平台 → 开发 → 开发管理 → 开发设置 → downloadFile 合法域名**，逐条添加需要访问的头像 CDN（目前不支持通配符或自动放行策略）。
+2. 在前端使用头像 URL 前先统一成 HTTPS：`const safeAvatar = avatarUrl.replace(/^http:\/\//, 'https://');`，避免混用协议导致的校验失败。
+3. 如果域名配额不足，可考虑先把头像转存到自己的代理/对象存储域名，再在后台统一放行该域名。
+
+官方渠道已经确认会返回头像的域名列表如下，建议全部加入白名单：
+
+| 域名 | 常见来源 | 官方参考 |
+| --- | --- | --- |
+| `https://thirdwx.qlogo.cn` | `wx.getUserProfile` 以及新版小程序用户头像 | [微信开放社区](https://developers.weixin.qq.com/community/develop/doc/000a4a8c47c658a23a9c861ba5bc00) |
+| `https://wx.qlogo.cn` | 老版本 `headimgurl`、群头像等缓存 | [微信开放社区](https://developers.weixin.qq.com/community/develop/doc/000ae222a30d28683a9a86d655b000) |
+| `https://mmbiz.qlogo.cn` | 公众号 / 小程序主页头像，chooseAvatar 返回样例 | [微信开放社区](https://developers.weixin.qq.com/community/develop/doc/00046c552b8fa0c49a5f6eef65e400) |
+| `https://mmbiz.qpic.cn` | 公众号后台分发的方形/裁剪头像资源 | [微信开放社区](https://developers.weixin.qq.com/community/develop/doc/0006aafc930f208dba125e06866400) |
+
+每当微信新增头像 CDN，都应第一时间同步到白名单，才能保证 `logoUrl=user-avatar` 这类功能在生成海报时稳定可用。
+
 ### 颜色自定义
 
 ```php

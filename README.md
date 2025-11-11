@@ -180,6 +180,25 @@ $procedure->logoUrl = 'https://example.com/logo.png';
 $procedure->logoUrl = 'user-avatar';
 ```
 
+#### Avatar Download Domains (Mini Program)
+
+> ⚠️ When you fetch a head image inside a Mini Program (for example to upload it to your backend before calling this bundle), `wx.downloadFile` only works for hosts that exist in your allowlist. Missing entries are the reason why `https://thirdwx.qlogo.cn/...` often fails.
+
+1. Go to **WeChat Mini Program Console → Development → Development management → Development settings → downloadFile legal domain** and add every WeChat avatar CDN host you rely on (wildcards are not accepted).
+2. Normalize any `http://` avatar URL to `https://` before using it: `const safeAvatar = avatarUrl.replace(/^http:\/\//, 'https://');`.
+3. If you are out of allowlist slots, proxy avatars through one of your own domains and whitelist that proxy once.
+
+Known WeChat avatar domains you should keep in sync with the allowlist:
+
+| Domain | Typical usage | Reference |
+| --- | --- | --- |
+| `https://thirdwx.qlogo.cn` | `wx.getUserProfile` / newer Mini Program avatars | [WeChat Dev QA](https://developers.weixin.qq.com/community/develop/doc/000a4a8c47c658a23a9c861ba5bc00) |
+| `https://wx.qlogo.cn` | Legacy `headimgurl`, group avatars, some cached profiles | [WeChat Dev QA](https://developers.weixin.qq.com/community/develop/doc/000ae222a30d28683a9a86d655b000) |
+| `https://mmbiz.qlogo.cn` | Official account & Mini Program profile images | [WeChat Dev QA](https://developers.weixin.qq.com/community/develop/doc/00046c552b8fa0c49a5f6eef65e400) |
+| `https://mmbiz.qpic.cn` | Square/cropped avatar assets distributed via the MP backend | [WeChat Dev QA](https://developers.weixin.qq.com/community/develop/doc/0006aafc930f208dba125e06866400) |
+
+Keep this list updated whenever WeChat announces new CDN domains so that poster generation using `logoUrl=user-avatar` never breaks in production.
+
 ### Color Customization
 
 ```php
