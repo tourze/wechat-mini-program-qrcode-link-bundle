@@ -16,20 +16,4 @@ use WechatMiniProgramQrcodeLinkBundle\WechatMiniProgramQrcodeLinkBundle;
 #[RunTestsInSeparateProcesses]
 final class WechatMiniProgramQrcodeLinkBundleTest extends AbstractBundleTestCase
 {
-    public function testBundleCanBeInstantiated(): void
-    {
-        /** @phpstan-ignore-next-line Bundle不是服务，只能直接实例化 */
-        $bundle = new WechatMiniProgramQrcodeLinkBundle();
-
-        $this->assertSame('WechatMiniProgramQrcodeLinkBundle', $bundle->getName());
-    }
-
-    public function testGetBundleDependencies(): void
-    {
-        $dependencies = WechatMiniProgramQrcodeLinkBundle::getBundleDependencies();
-
-        $this->assertIsArray($dependencies);
-        $this->assertNotEmpty($dependencies);
-        $this->assertArrayHasKey('all', $dependencies[array_key_first($dependencies)]);
-    }
 }
