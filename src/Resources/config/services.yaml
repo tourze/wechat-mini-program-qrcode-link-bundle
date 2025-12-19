@@ -10,3 +10,15 @@ services:
     resource: '../../Procedure/'
 
   Tourze\FileNameGenerator\RandomNameGenerator: ~
+
+  # FilesystemOperator 用于保存生成的二维码图片
+  League\Flysystem\FilesystemOperator:
+    class: League\Flysystem\Filesystem
+    arguments:
+      $adapter: '@wechat_qrcode.filesystem.adapter'
+      $config: []
+
+  wechat_qrcode.filesystem.adapter:
+    class: League\Flysystem\Local\LocalFilesystemAdapter
+    arguments:
+      $location: '%kernel.project_dir%/var/wechat-qrcode'

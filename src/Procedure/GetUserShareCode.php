@@ -17,14 +17,16 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Tourze\FileNameGenerator\RandomNameGenerator;
 use Tourze\JsonRPC\Core\Attribute\MethodDoc;
 use Tourze\JsonRPC\Core\Attribute\MethodExpose;
-use Tourze\JsonRPC\Core\Attribute\MethodParam;
 use Tourze\JsonRPC\Core\Attribute\MethodTag;
+use Tourze\JsonRPC\Core\Contracts\RpcParamInterface;
 use Tourze\JsonRPC\Core\Exception\ApiException;
+use Tourze\JsonRPC\Core\Result\ArrayResult;
 use Tourze\JsonRPCLockBundle\Procedure\LockableProcedure;
 use WechatMiniProgramBundle\Entity\Account;
 use WechatMiniProgramBundle\Enum\EnvVersion;
 use WechatMiniProgramBundle\Service\AccountService;
 use WechatMiniProgramBundle\Service\Client;
+use WechatMiniProgramQrcodeLinkBundle\Param\GetUserShareCodeParam;
 use WechatMiniProgramQrcodeLinkBundle\Request\CodeUnLimitRequest;
 use WechatMiniProgramShareBundle\Entity\ShareCode;
 
@@ -32,32 +34,8 @@ use WechatMiniProgramShareBundle\Entity\ShareCode;
 #[MethodDoc(summary: '前端获取分享用的小程序码')]
 #[IsGranted(attribute: 'IS_AUTHENTICATED_FULLY')]
 #[MethodExpose(method: 'GetUserShareCode')]
-class GetUserShareCode extends LockableProcedure
+final class GetUserShareCode extends LockableProcedure
 {
-    #[MethodParam(description: 'AppID')]
-    public string $appId = '';
-
-    #[MethodParam(description: '跳转路径，不传就进入首页')]
-    public ?string $link = null;
-
-    #[MethodParam(description: '尺寸 默认200')]
-    public int $size = 200;
-
-    #[MethodParam(description: '打开版本')]
-    public string $envVersion = 'release';
-
-    #[MethodParam(description: '是否需要透明底色，为 true 时，生成透明底色的小程序码')]
-    public bool $hyaline = false;
-
-    /**
-     * @var array<string, int>|string|null
-     */
-    #[MethodParam(description: '默认是{"r":0,"g":0,"b":0} 。auto_color 为 false 时生效，使用 rgb 设置颜色 例如 {"r":"xxx","g":"xxx","b":"xxx"} 十进制表示')]
-    public array|string|null $lineColor = null;
-
-    #[MethodParam(description: '覆盖中心的LOGO地址')]
-    public ?string $logoUrl = null;
-
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly AccountService $accountService,
@@ -69,11 +47,14 @@ class GetUserShareCode extends LockableProcedure
     ) {
     }
 
-    public function execute(): array
+    /**
+     * @phpstan-param GetUserShareCodeParam $param
+     */
+    public function execute(GetUserShareCodeParam|RpcParamInterface $param): ArrayResult
     {
-        $account = $this->detectAccount();
-        $code = $this->createShareCode($account);
-        $request = $this->createQrcodeRequest($account, $code);
+        $account = $this->detectAccount($param->appId);
+        $code = $this->createShareCode($account, $param);
+        $request = $this->createQrcodeRequest($account, $code, $param);
         $response = $this->client->request($request);
 
         if (!is_string($response)) {
@@ -81,8 +62,8 @@ class GetUserShareCode extends LockableProcedure
         }
         $png = $response;
 
-        if ($this->shouldAddLogo()) {
-            $png = $this->addLogoToPng($png);
+        if ($this->shouldAddLogo($param->logoUrl)) {
+            $png = $this->addLogoToPng($png, $param->logoUrl);
         }
 
         $this->saveImageAndUpdateCode($code, $png);
@@ -90,9 +71,9 @@ class GetUserShareCode extends LockableProcedure
         return $this->formatShareCodeResponse($code);
     }
 
-    private function detectAccount(): Account
+    private function detectAccount(string $appId): Account
     {
-        $account = $this->accountService->detectAccountFromRequest($this->requestStack->getMainRequest(), $this->appId);
+        $account = $this->accountService->detectAccountFromRequest($this->requestStack->getMainRequest(), $appId);
         if (null === $account) {
             throw new ApiException('找不到小程序');
         }
@@ -100,14 +81,14 @@ class GetUserShareCode extends LockableProcedure
         return $account;
     }
 
-    private function createShareCode(Account $account): ShareCode
+    private function createShareCode(Account $account, GetUserShareCodeParam $param): ShareCode
     {
         $code = new ShareCode();
         $code->setAccount($account);
-        $code->setLinkUrl($this->getLinkUrl());
-        $code->setEnvVersion(EnvVersion::tryFrom($this->envVersion));
+        $code->setLinkUrl($this->getLinkUrl($param->link));
+        $code->setEnvVersion(EnvVersion::tryFrom($param->envVersion));
         $code->setValid(true);
-        $code->setSize($this->size);
+        $code->setSize($param->size);
         $code->setUser($this->security->getUser());
 
         $this->entityManager->persist($code);
@@ -116,18 +97,18 @@ class GetUserShareCode extends LockableProcedure
         return $code;
     }
 
-    private function getLinkUrl(): string
+    private function getLinkUrl(?string $link): string
     {
-        if (null === $this->link || '' === $this->link) {
+        if (null === $link || '' === $link) {
             $envPage = $_ENV['WECHAT_MINI_PROGRAM_INDEX_PAGE'] ?? '/pages/index/index';
 
             return is_string($envPage) ? $envPage : '/pages/index/index';
         }
 
-        return $this->link;
+        return $link;
     }
 
-    private function createQrcodeRequest(Account $account, ShareCode $code): CodeUnLimitRequest
+    private function createQrcodeRequest(Account $account, ShareCode $code, GetUserShareCodeParam $param): CodeUnLimitRequest
     {
         $envPath = $_ENV['WECHAT_MINI_PROGRAM_SHARE_REDIRECT_PATH'] ?? 'pages/share/index';
         $basePathRaw = is_string($envPath) ? $envPath : 'pages/share/index';
@@ -140,27 +121,27 @@ class GetUserShareCode extends LockableProcedure
         $request->setCheckPath(false);
         $request->setEnvVersion(null !== $code->getEnvVersion() ? $code->getEnvVersion()->value : 'release');
         $request->setWidth($code->getSize() ?? 200);
-        $request->setHyaline($this->hyaline);
+        $request->setHyaline($param->hyaline);
 
-        if (null !== $this->lineColor) {
-            $request->setLineColor($this->lineColor);
+        if (null !== $param->lineColor) {
+            $request->setLineColor($param->lineColor);
         }
 
         return $request;
     }
 
-    private function shouldAddLogo(): bool
+    private function shouldAddLogo(?string $logoUrl): bool
     {
-        return null !== $this->logoUrl && '' !== $this->logoUrl;
+        return null !== $logoUrl && '' !== $logoUrl;
     }
 
-    private function addLogoToPng(string $png): string
+    private function addLogoToPng(string $png, ?string $logoUrl): string
     {
         $manager = new ImageManager(new Driver());
         $img = $manager->read($png);
         $innerWidth = ceil($img->width() / 2.25);
 
-        $avatar = $this->createAvatar($manager);
+        $avatar = $this->createAvatar($manager, $logoUrl);
         $avatar->resize((int) $innerWidth, (int) $innerWidth);
 
         $canvas = $this->createCircularCanvas($manager, $innerWidth);
@@ -171,13 +152,13 @@ class GetUserShareCode extends LockableProcedure
         return $img->toPng()->toString();
     }
 
-    private function createAvatar(ImageManager $manager): ImageInterface
+    private function createAvatar(ImageManager $manager, ?string $logoUrl): ImageInterface
     {
-        if (str_starts_with($this->logoUrl ?? '', 'https://')) {
-            return $manager->read($this->logoUrl);
+        if (str_starts_with($logoUrl ?? '', 'https://')) {
+            return $manager->read($logoUrl);
         }
 
-        if ('user-avatar' === $this->logoUrl) {
+        if ('user-avatar' === $logoUrl) {
             $user = $this->security->getUser();
             if (null === $user || !method_exists($user, 'getAvatar')) {
                 throw new ApiException('用户对象不支持获取头像');
@@ -215,13 +196,11 @@ class GetUserShareCode extends LockableProcedure
     /**
      * 格式化 ShareCode 为 API 响应数组
      * 字段清单对应 restful_read 序列化组
-     *
-     * @return array<string, mixed>
      */
-    private function formatShareCodeResponse(ShareCode $code): array
+    private function formatShareCodeResponse(ShareCode $code): ArrayResult
     {
-        return [
+        return new ArrayResult([
             'imageUrl' => $code->getImageUrl(),
-        ];
+        ]);
     }
 }

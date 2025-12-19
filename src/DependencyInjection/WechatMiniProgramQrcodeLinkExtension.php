@@ -6,7 +6,7 @@ namespace WechatMiniProgramQrcodeLinkBundle\DependencyInjection;
 
 use Tourze\SymfonyDependencyServiceLoader\AutoExtension;
 
-class WechatMiniProgramQrcodeLinkExtension extends AutoExtension
+final class WechatMiniProgramQrcodeLinkExtension extends AutoExtension
 {
     protected function getConfigDir(): string
     {

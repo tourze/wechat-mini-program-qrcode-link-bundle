@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace WechatMiniProgramQrcodeLinkBundle\Exception;
 
-class InvalidColorException extends \InvalidArgumentException
+final class InvalidColorException extends \InvalidArgumentException
 {
 }

@@ -16,7 +16,7 @@ use WechatMiniProgramQrcodeLinkBundle\Exception\AccountNotFoundException;
 use WechatMiniProgramQrcodeLinkBundle\Request\CodeUnLimitRequest;
 
 #[AsCommand(name: self::NAME, description: '生成指定路径和场景值的码')]
-class GenerateUnlimitedCodeCommand extends Command
+final class GenerateUnlimitedCodeCommand extends Command
 {
     public const NAME = 'wechat-mini-program:generate-unlimited-code';
 
