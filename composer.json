@@ -28,7 +28,7 @@
     "tourze/json-rpc-endpoint-bundle": "2.0.*",
     "tourze/json-rpc-lock-bundle": "2.0.*",
     "tourze/symfony-dependency-service-loader": "1.0.*",
-    "tourze/wechat-mini-program-bundle": "1.0.*",
+    "tourze/wechat-mini-program-bundle": "2.0.*",
     "tourze/wechat-mini-program-share-bundle": "1.0.*"
   },
   "require-dev": {
